@@ -3,7 +3,7 @@
 Bu proje, Datafors Frontend Case çalışması kapsamında hazırlanmıştır. "Ne Dendy?" modülünün anket verilerini analiz eden, yönetici odaklı bir dashboard uygulamasıdır.
 
 ## 🛠 Kurulum ve Çalıştırma
-1. Projeyi klonlayın: `git clone [REPOLINKI]`
+1. Projeyi klonlayın: `git clone https://github.com/Magnezyum12/ne-dendy-dashboard`
 2. Bağımlılıkları yükleyin: `npm install`
 3. Uygulamayı başlatın: `npm run dev`
 
