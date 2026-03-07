@@ -12,7 +12,7 @@ Bu proje, Datafors Frontend Case çalışması kapsamında hazırlanmıştır. "
 - **Risk Analizi:** `risk_flag` takibine ek olarak, `severity > 0.5` olan girdiler de riskli olarak işaretlenmiştir.
 - **Duygu Durum Yerelleştirmesi:** Kullanıcı deneyimini artırmak amacıyla İngilizce sentiment verileri Türkçeye çevrilmiştir.
 
-## 🚀 Gelecek Geliştirmeler (Roadmap)
+## 🚀 Yapılabilecek İyileştirmeler
 - Projenin bir sonraki aşamalarında veri analizi ve kullanıcı deneyimini artırmak için şu geliştirmeler planlanmaktadır:
 
 - Dinamik Veri Filtreleme: Kullanıcıların dashboard üzerinden confidence ve severity eşik değerlerini anlık olarak değiştirebileceği kaydırıcılar eklenmesi.
