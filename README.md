@@ -19,7 +19,7 @@ Proje, sadece bir arayüz çalışması değil, aynı zamanda verinin güvenilir
 Ham veri seti **1369** kayıt içermesine rağmen, dashboard üzerinde sadece **232** kayıt aktif olarak işlenmektedir. Bu seçimin arkasındaki teknik mantık:
 
 * **`should_display` Analizi:** Sistem tarafından görüntülenmesi uygun görülmeyen (`False`) tüm veriler, raporlama doğruluğu adına elenmiştir.
-* **Mantıksal Korelasyon:** Yapılan incelemede, `confidence = 0.00` olan her verinin istisnasız `should_display = False` olduğu saptanmıştır. Ancak, güven skoru yüksek olup yine de "False" işaretlenen veriler de tespit edilmiş; bu durumda sistemin (business logic) kararı önceliklendirilmiştir.
+* **Mantıksal Korelasyon:** Yapılan incelemede, `confidence = 0.00` olan her verinin istisnasız `should_display = False` olduğu saptanmıştır. Ancak, güven skoru yüksek olup yine de "False" işaretlenen veriler de tespit edilmiş; bu durumda sistemin kararı önceliklendirilmiştir.
 * **İstatistiki Sonuç:** Analizler (**Ortalama Skor: 0.38**, **Model Güveni: %86**) sadece bu yüksek kaliteli 232 kayıt üzerinden hesaplanarak yanıltıcı gürültü verilerin istatistikleri bozması engellenmiştir.
 
 ### 2. Risk ve Duygu Analizi
