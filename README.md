@@ -1,4 +1,4 @@
-#Ne Dendy? Yönetici Paneli 🚀
+Ne Dendy? Yönetici Paneli 🚀
 Bu proje, Datafors Frontend Case çalışması kapsamında geliştirilmiştir. "Ne Dendy?" modülünden gelen ham verileri analiz eden, veri temizliği ve anlamlandırma süreçlerini içeren yönetici odaklı bir dashboard uygulamasıdır.
 
 ##🛠 Kurulum ve Çalıştırma
@@ -8,7 +8,7 @@ Bağımlılıkları yükleyin: npm install
 
 Uygulamayı başlatın: npm run dev
 
-##🧠 Veri Analizi ve Mühendislik Kararları
+🧠 Veri Analizi ve Mühendislik Kararları
 Proje, sadece bir arayüz çalışması değil, aynı zamanda verinin güvenilirliğini sorgulayan bir Keşifçi Veri Analizi sürecini kapsamaktadır.
 
 1. Veri Filtreleme Stratejisi
@@ -25,7 +25,7 @@ Hibrit Risk Takibi: risk_flag takibine ek olarak, severity > 0.5 olan girdiler d
 
 Yerelleştirme: Kullanıcı deneyimi için İngilizce sentiment verileri Türkçeye çevrilmiştir.
 
-##🚀 Gelecek Vizyonu ve İyileştirmeler
+🚀 Gelecek Vizyonu ve İyileştirmeler
 Dinamik Filtreleme: Kullanıcıların confidence ve severity eşik değerlerini anlık olarak değiştirebileceği slider bileşenleri.
 
 Operasyonel Şeffaflık: Düşük güvenli verilerin tabloda tamamen gizlenmek yerine gri tonlama veya uyarı ikonlarıyla ayrıştırılması.
