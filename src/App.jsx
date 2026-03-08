@@ -3,28 +3,42 @@ import Papa from 'papaparse';
 import { LayoutDashboard, Filter, BarChart3, ShieldAlert, CheckCircle, AlertCircle } from 'lucide-react';
 
 function App() {
-  // --- State Yönetimi ---
-  const [data, setData] = useState([]); // CSV'den gelen ham veri
-  const [filteredData, setFilteredData] = useState([]); // Filtrelenmiş ve ekranda gösterilen veri
-  const [selectedSurveyId, setSelectedSurveyId] = useState('all'); // Dropdown filtre seçimi
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedSurveyId, setSelectedSurveyId] = useState('all');
+  const [rawCount, setRawCount] = useState(0);
 
-  // --- Veri Çekme (Data Fetching) ---
   useEffect(() => {
-    // Public klasöründeki data.csv dosyasını PapaParse ile JSON'a dönüştürüyoruz
     Papa.parse('/data.csv', {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        setData(results.data);
-        setFilteredData(results.data);
+        const raw = results.data;
+        setRawCount(raw.length);
+
+        // --- DAHA ESNEK VE GÜVENLİ FİLTRELEME ---
+        const cleanData = raw.filter(item => {
+          // Değerleri temizle (boşlukları at, küçük harf yap)
+          const displayVal = String(item.should_display || "").toLowerCase().trim();
+          const confVal = Number(item.confidence || 0);
+
+          // Esnek kontrol: 'true', 't' veya '1' değerlerinden herhangi birini kabul et
+          const isDisplayTrue = (displayVal === 'true' || displayVal === 't' || displayVal === '1');
+          const hasConfidence = confVal > 0;
+
+          return isDisplayTrue && hasConfidence;
+        });
+
+        console.log("Ham Veri:", raw.length, "Filtrelenmiş Veri:", cleanData.length);
+        
+        setData(cleanData);
+        setFilteredData(cleanData);
       },
     });
   }, []);
 
-  // --- Filtreleme Mantığı ---
   useEffect(() => {
-    // survey_id değiştiğinde listeyi güncelliyoruz
     if (selectedSurveyId === 'all') {
       setFilteredData(data);
     } else {
@@ -32,59 +46,50 @@ function App() {
     }
   }, [selectedSurveyId, data]);
 
-  // Benzersiz Survey ID'lerini dropdown için hazırlıyoruz
   const surveyIds = [...new Set(data.map(item => item.survey_id))].filter(Boolean);
 
-  // --- Yardımcı Fonksiyonlar ---
-  
-  /**
-   * Bir satırın risk teşkil edip etmediğini belirler.
-   * Mantık: risk_flag 't' ise VEYA severity (şiddet) 0.5 üzerindeyse riskli kabul edilir.
-   */
   const isRisk = (row) => {
-    const flag = String(row.risk_flag).toLowerCase();
+    const flag = String(row.risk_flag || "").toLowerCase().trim();
     const severity = Number(row.severity || 0);
     return flag === 't' || flag === 'true' || flag === '1' || severity > 0.5;
   };
 
-  /**
-   * İngilizce gelen duygu durumlarını Türkçeye çevirir.
-   */
   const translateSentiment = (sentiment) => {
-    const s = String(sentiment).toLowerCase();
+    const s = String(sentiment || "").toLowerCase().trim();
     if (s === 'positive') return 'Pozitif';
     if (s === 'negative') return 'Negatif';
     return 'Nötr';
   };
 
-  // --- Analitik Hesaplamalar ---
   const totalResponses = filteredData.length;
   const riskCount = filteredData.filter(row => isRisk(row)).length;
   
-  // Ortalama Skor: 0.00 değerleri düşük performansı temsil ettiği için hesaplamaya dahildir.
   const avgScore = totalResponses > 0 
     ? (filteredData.reduce((acc, curr) => acc + Number(curr.score || 0), 0) / totalResponses).toFixed(2) 
     : "0.00";
 
-  // Model Güveni: 0.00 değerleri analiz dışı gürültü (noise) olduğu için filtrelenmiştir.
-  const validConfidences = filteredData.map(d => Number(d.confidence)).filter(c => c > 0);
-  const avgConfidence = validConfidences.length > 0
-    ? (validConfidences.reduce((a, b) => a + b, 0) / validConfidences.length).toFixed(2)
-    : "0.00";
+  // Güven skoru 0-1 arasındaysa 100 ile çarp, zaten 0-100 arasındaysa olduğu gibi bırak
+  const calculateAvgConf = () => {
+    if (totalResponses === 0) return 0;
+    const sum = filteredData.reduce((acc, curr) => acc + Number(curr.confidence || 0), 0);
+    const avg = sum / totalResponses;
+    return avg <= 1 ? Math.round(avg * 100) : Math.round(avg);
+  };
 
   return (
     <div style={containerStyle}>
       <div style={contentWrapperStyle}>
         
-        {/* Başlık ve Logo Bölümü */}
         <header style={headerStyle}>
           <div style={logoWrapperStyle}>
             <LayoutDashboard size={45} color="white" />
           </div>
           <h1 style={titleStyle}>Ne Dendy? Yönetici Paneli</h1>
+          <p style={{ color: '#e0f2f1', fontWeight: '500', marginTop: '10px' }}>
+            Analiz Edilen Veri: {totalResponses} / Toplam Kayıt: {rawCount}
+          </p>
         </header>
 
-        {/* Üst İstatistik Kartları */}
         <div style={statsGridStyle}>
           <div style={cardStyle}>
             <div style={iconContainerStyle}><BarChart3 size={22} color="#19a898"/></div>
@@ -100,11 +105,10 @@ function App() {
           </div>
           <div style={cardStyle}>
             <div style={{...iconContainerStyle, backgroundColor: '#f5f3ff'}}><AlertCircle size={22} color="#7c3aed"/></div>
-            <div><div style={cardLabelStyle}>Model Güveni</div><div style={cardValueStyle}>%{Math.round(avgConfidence * 100)}</div></div>
+            <div><div style={cardLabelStyle}>Model Güveni</div><div style={cardValueStyle}>%{calculateAvgConf()}</div></div>
           </div>
         </div>
 
-        {/* Veri Tablosu ve Filtreleme Alanı */}
         <div style={tableWrapperStyle}>
           <div style={filterHeaderStyle}>
              <Filter size={20} color="#4a5568" />
@@ -125,26 +129,29 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {/* Performans için ilk 50 kaydı listeliyoruz */}
-                {filteredData.slice(0, 50).map((row, index) => (
-                  <tr key={index} style={trStyle}>
-                    <td style={tdStyle}>
-                      <div style={{ fontWeight: '600', color: '#1a202c' }}>{row.summary || "Veri Yok"}</div>
-                      <div style={{ fontSize: '11px', color: '#94a3b8' }}>Anket ID: {row.survey_id}</div>
-                    </td>
-                    <td style={tdStyle}>
-                      <span style={{ 
-                        fontWeight: '600',
-                        color: String(row.sentiment).toLowerCase() === 'positive' ? '#16a34a' : String(row.sentiment).toLowerCase() === 'negative' ? '#dc2626' : '#64748b' 
-                      }}>
-                        {translateSentiment(row.sentiment)}
-                      </span>
-                    </td>
-                    <td style={tdStyle}>
-                      {isRisk(row) ? <span style={riskBadgeStyle}>RİSKLİ</span> : <span style={safeBadgeStyle}>GÜVENLİ</span>}
-                    </td>
-                  </tr>
-                ))}
+                {filteredData.slice(0, 50).map((row, index) => {
+                  const conf = Number(row.confidence || 0);
+                  const displayConf = conf <= 1 ? Math.round(conf * 100) : Math.round(conf);
+                  return (
+                    <tr key={index} style={trStyle}>
+                      <td style={tdStyle}>
+                        <div style={{ fontWeight: '600', color: '#1a202c' }}>{row.summary || "Veri Yok"}</div>
+                        <div style={{ fontSize: '11px', color: '#94a3b8' }}>Anket ID: {row.survey_id} | Güven: %{displayConf}</div>
+                      </td>
+                      <td style={tdStyle}>
+                        <span style={{ 
+                          fontWeight: '600',
+                          color: String(row.sentiment || "").toLowerCase().includes('pos') ? '#16a34a' : String(row.sentiment || "").toLowerCase().includes('neg') ? '#dc2626' : '#64748b' 
+                        }}>
+                          {translateSentiment(row.sentiment)}
+                        </span>
+                      </td>
+                      <td style={tdStyle}>
+                        {isRisk(row) ? <span style={riskBadgeStyle}>RİSKLİ</span> : <span style={safeBadgeStyle}>GÜVENLİ</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -154,7 +161,7 @@ function App() {
   );
 }
 
-// --- Stil Tanımlamaları ---
+// Stil Tanımlamaları
 const containerStyle = { backgroundColor: '#19a898', minHeight: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 20px', boxSizing: 'border-box', margin: 0 };
 const contentWrapperStyle = { width: '100%', maxWidth: '1000px', display: 'flex', flexDirection: 'column' };
 const headerStyle = { textAlign: 'center', marginBottom: '50px' };
