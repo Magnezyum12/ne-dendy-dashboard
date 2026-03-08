@@ -32,3 +32,5 @@ Ham veri seti **1369** kayıt içermesine rağmen, dashboard üzerinde sadece **
 * **Dinamik Veri Filtreleme:** Kullanıcıların dashboard üzerinden `confidence` ve `severity` eşik değerlerini anlık olarak değiştirebileceği kaydırıcılar eklenmesi.
 * **Görsel Veri Ayrıştırma:** Mevcut listede yer alan ancak güven değeri düşük olan verilerin, operasyonel şeffaflık adına tabloda görsel olarak (örneğin gri tonlama veya uyarı ikonu ile) ayrıştırılması.
 * **İleri Analitik Modu:** `confidence = 0` olan verilerin nedenlerini (veri eksikliği mi yoksa model hatası mı?) analiz eden ek bir teşhis paneli.
+
+# Zaman yetseydi, python notebook'undaki veri analizleri, işlemleri ve açıklamaları daha detaylı ve anlaşılabilir hale getirebilirdim.
